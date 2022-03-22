@@ -1,3 +1,4 @@
+from crypt import methods
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -5,52 +6,59 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+productos = [
+    {
+        'nombre': 'Microondas',
+        'detalle': '14 pulgadas',
+        'stock': 12,
 
-users = ["foo", "bar", "baz", "qux"]
+    },
+    {
+        'nombre': 'televisor',
+        'detalle': '42 pulgadas',
+        'stock': 22,
 
+    },
+    {
+        'nombre': 'licuadora',
+        'detalle': 'grande',
+        'stock': 14,
 
-@app.route("/")
-def index():
-    return "bienvenidos al sistema"
+    },
+    {
+        'nombre': 'aire acondicionado',
+        'detalle': '12000 btu',
+        'stock': 40,
 
+    },
+]
 
-@app.route("/users")
-def all_users():
-    return jsonify(users)
+# Endpoint 1 ~(ver los productos)
+@app.route("/all" , methods=["GET"])
+def get_productos():
+    return jsonify(productos)
 
-
-@app.route("/q")
-def query_user():
-    n = request.args["n"]
-    idx = users.index(n)
-    return jsonify(users[idx])
-
-
+# Endpoint 2 ~(Agregar productos)
 @app.route("/add", methods=["POST"])
-def add_user():
+def add_productos():
     if request.method == "POST":
-        nombre = request.args["nombre"]
-        users.append(nombre)
-        return jsonify("usuario agregado...")
+        producto = request.args["producto"]
+        productos.append(producto)
+        return jsonify("Se ha agregado {}".format(producto))
 
+# Endpoint 3 ~(Buscar productos)
+@app.route("/src", methods=["GET"])
+def display_productos():
+    producto = request.args["nombre"]
+    idx = productos.index(producto)
+    return jsonify(productos[idx])
 
+# Endpoint 4 ~(Borrar productos)
 @app.route("/del", methods=["DELETE"])
-def del_user():
-    if request.method == "DELETE":
-        nombre = request.args["nombre"]
-        idx = users.index(nombre)
-        users.pop(idx)
-        return jsonify("usuario:{} eliminado".format(nombre))
-
-
-@app.route("/up", methods=["PUT"])
-def up_user():
-    if request.method == "PUT":
-        n = request.args["nombre"]
-        f = request.args["valor"]
-        idx = users.index(n)
-        users[idx] = f
-        return jsonify("usuario:{} actualizado...".format(n))
-
+def remove_productos():
+    producto = request.args["nombre"]
+    idx = productos.index(producto)
+    productos.pop(idx)
+    return jsonify("Se ha borrado {}".format(productos))
 
 app.run(host="127.0.0.1", port=5000, debug=True)
